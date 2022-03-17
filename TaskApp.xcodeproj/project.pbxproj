@@ -48,7 +48,6 @@
 		6F174F4927E3C5A900ED3FAB = {
 			isa = PBXGroup;
 			children = (
-				6F174F6C27E3C78A00ED3FAB /* Model.xcdatamodeld */,
 				6F174F5427E3C5A900ED3FAB /* TaskApp */,
 				6F174F5327E3C5A900ED3FAB /* Products */,
 			);
@@ -67,14 +66,15 @@
 			children = (
 				6F174F7127E3D40100ED3FAB /* EventListView.swift */,
 				6F174F6F27E3D39500ED3FAB /* EventView.swift */,
+				6F174F7327E3D45700ED3FAB /* TaskView.swift */,
 				6F174F5527E3C5A900ED3FAB /* AppDelegate.swift */,
 				6F174F5727E3C5A900ED3FAB /* SceneDelegate.swift */,
 				6F174F5E27E3C5AA00ED3FAB /* Assets.xcassets */,
 				6F174F6327E3C5AA00ED3FAB /* LaunchScreen.storyboard */,
 				6F174F6627E3C5AA00ED3FAB /* Info.plist */,
 				6F174F5927E3C5A900ED3FAB /* TaskApp.xcdatamodeld */,
+				6F174F6C27E3C78A00ED3FAB /* Model.xcdatamodeld */,
 				6F174F6027E3C5AA00ED3FAB /* Preview Content */,
-				6F174F7327E3D45700ED3FAB /* TaskView.swift */,
 			);
 			path = TaskApp;
 			sourceTree = "<group>";

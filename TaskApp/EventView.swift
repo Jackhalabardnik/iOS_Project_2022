@@ -2,7 +2,17 @@ import SwiftUI
 
 struct EventView: View {
     var body: some View {
-        Text("Hello, event view!")
+            VStack {
+                Text("Hello, event view!")
+                NavigationLink(
+                    destination: TaskView(),
+                    label: {
+                        Text("Zadanie")
+                            .frame(width:200, height: 40)
+                            .background(Color.green)
+                }
+                )
+            }
     }
 }
 
