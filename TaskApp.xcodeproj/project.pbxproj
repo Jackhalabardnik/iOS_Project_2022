@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		6F174F5627E3C5A900ED3FAB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F5527E3C5A900ED3FAB /* AppDelegate.swift */; };
 		6F174F5827E3C5A900ED3FAB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F5727E3C5A900ED3FAB /* SceneDelegate.swift */; };
-		6F174F5B27E3C5A900ED3FAB /* TaskApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F5927E3C5A900ED3FAB /* TaskApp.xcdatamodeld */; };
 		6F174F5F27E3C5AA00ED3FAB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F174F5E27E3C5AA00ED3FAB /* Assets.xcassets */; };
 		6F174F6227E3C5AA00ED3FAB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6F174F6127E3C5AA00ED3FAB /* Preview Assets.xcassets */; };
 		6F174F6527E3C5AA00ED3FAB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6F174F6327E3C5AA00ED3FAB /* LaunchScreen.storyboard */; };
@@ -17,13 +16,14 @@
 		6F174F7027E3D39500ED3FAB /* EventView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F6F27E3D39500ED3FAB /* EventView.swift */; };
 		6F174F7227E3D40100ED3FAB /* EventListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F7127E3D40100ED3FAB /* EventListView.swift */; };
 		6F174F7427E3D45700ED3FAB /* TaskView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F174F7327E3D45700ED3FAB /* TaskView.swift */; };
+		6FF7D2F627E5247900721459 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FF7D2F527E5247900721459 /* PopupView.swift */; };
+		6FF7D2F827E52EB800721459 /* EventNameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FF7D2F727E52EB800721459 /* EventNameView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		6F174F5227E3C5A900ED3FAB /* TaskApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F174F5527E3C5A900ED3FAB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6F174F5727E3C5A900ED3FAB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		6F174F5A27E3C5A900ED3FAB /* TaskApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TaskApp.xcdatamodel; sourceTree = "<group>"; };
 		6F174F5E27E3C5AA00ED3FAB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6F174F6127E3C5AA00ED3FAB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		6F174F6427E3C5AA00ED3FAB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -32,6 +32,8 @@
 		6F174F6F27E3D39500ED3FAB /* EventView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventView.swift; sourceTree = "<group>"; };
 		6F174F7127E3D40100ED3FAB /* EventListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventListView.swift; sourceTree = "<group>"; };
 		6F174F7327E3D45700ED3FAB /* TaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskView.swift; sourceTree = "<group>"; };
+		6FF7D2F527E5247900721459 /* PopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopupView.swift; sourceTree = "<group>"; };
+		6FF7D2F727E52EB800721459 /* EventNameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventNameView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,8 @@
 			isa = PBXGroup;
 			children = (
 				6F174F7127E3D40100ED3FAB /* EventListView.swift */,
+				6FF7D2F527E5247900721459 /* PopupView.swift */,
+				6FF7D2F727E52EB800721459 /* EventNameView.swift */,
 				6F174F6F27E3D39500ED3FAB /* EventView.swift */,
 				6F174F7327E3D45700ED3FAB /* TaskView.swift */,
 				6F174F5527E3C5A900ED3FAB /* AppDelegate.swift */,
@@ -72,7 +76,6 @@
 				6F174F5E27E3C5AA00ED3FAB /* Assets.xcassets */,
 				6F174F6327E3C5AA00ED3FAB /* LaunchScreen.storyboard */,
 				6F174F6627E3C5AA00ED3FAB /* Info.plist */,
-				6F174F5927E3C5A900ED3FAB /* TaskApp.xcdatamodeld */,
 				6F174F6C27E3C78A00ED3FAB /* Model.xcdatamodeld */,
 				6F174F6027E3C5AA00ED3FAB /* Preview Content */,
 			);
@@ -159,10 +162,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				6F174F5627E3C5A900ED3FAB /* AppDelegate.swift in Sources */,
+				6FF7D2F627E5247900721459 /* PopupView.swift in Sources */,
+				6FF7D2F827E52EB800721459 /* EventNameView.swift in Sources */,
 				6F174F7427E3D45700ED3FAB /* TaskView.swift in Sources */,
 				6F174F5827E3C5A900ED3FAB /* SceneDelegate.swift in Sources */,
 				6F174F6E27E3C78A00ED3FAB /* Model.xcdatamodeld in Sources */,
-				6F174F5B27E3C5A900ED3FAB /* TaskApp.xcdatamodeld in Sources */,
 				6F174F7027E3D39500ED3FAB /* EventView.swift in Sources */,
 				6F174F7227E3D40100ED3FAB /* EventListView.swift in Sources */,
 			);
@@ -358,16 +362,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		6F174F5927E3C5A900ED3FAB /* TaskApp.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				6F174F5A27E3C5A900ED3FAB /* TaskApp.xcdatamodel */,
-			);
-			currentVersion = 6F174F5A27E3C5A900ED3FAB /* TaskApp.xcdatamodel */;
-			path = TaskApp.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
 		6F174F6C27E3C78A00ED3FAB /* Model.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
