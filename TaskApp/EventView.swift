@@ -1,26 +1,33 @@
 import SwiftUI
 
 struct EventView: View {
-    @Environment(\.managedObjectContext) private var event_context
+    @Environment(\.managedObjectContext) private var core_context
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Event.name, ascending: true)],
         animation: .default)
     private var events: FetchedResults<Event>
     
-    @Environment(\.managedObjectContext) private var task_context
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Task.name, ascending: true)],
-        animation: .default)
-    private var tasks: FetchedResults<Task>
+    @FetchRequest var tasks: FetchedResults<Task>
     
-    @State var event: Event
+    @ObservedObject var event: Event
     @State var search_string = ""
     @State var show_edit_popup = false
     @State var show_new_task_popup = false
     
+    init(event: Event) {
+        self.event = event
+        
+        _tasks = FetchRequest(
+            sortDescriptors: [
+                NSSortDescriptor(keyPath: \Task.name, ascending: true)
+            ],
+            predicate: NSPredicate(format: "event == %@", event),
+            animation: .default
+        )
+    }
+    
     var body: some View {
             VStack {
-                Spacer()
                 HStack(spacing: 16) {
                     Text(self.event.name!)
                     .font(.system(size: 25, weight: .bold, design: .default))
@@ -40,6 +47,7 @@ struct EventView: View {
                     .cornerRadius(10)
                     }.padding([.leading, .trailing], 10)
                 }
+                
                 HStack(spacing: 16) {
                     Toggle("Is active:", isOn: $event.is_active)
                         .onReceive([self.event.is_active].publisher.first()) {value in
@@ -61,26 +69,28 @@ struct EventView: View {
                     HStack {
                         Text("Search: ")
                         .frame(height: 36)
-                        .padding([.leading, .trailing], 5)
                         
                         TextField("", text: $search_string)
                         .frame(height: 36)
-                        .padding([.leading, .trailing], 10)
                         .background(Color.gray.opacity(0.3))
                         .cornerRadius(10)
-                    }
+                    }.padding([.leading, .trailing], 10)
                     
                     Spacer()
                     
-                    if self.search_string.isBlank == false && (self.tasks.filter{$0.name!.lowercased().contains(self.search_string.lowercased())}).isEmpty {
+                    if self.search_string.isBlank == false && (self.tasks.filter{ $0.name!.lowercased().contains(self.search_string.lowercased()) }).isEmpty {
                         Text("There is no tasks containing given string")
                     }
                     else {
                         List {
                             ForEach(self.tasks.filter
-                                { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id : \.name)
+                                { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id: \.name)
                             { task in
-                                Text(task.name!)
+                                NavigationLink(
+                                 destination: TaskView(task: task),
+                                    label: {
+                                     Text(task.name!)
+                                })
                             }.onDelete(perform: delete_task)
                         }
                     }
@@ -99,16 +109,16 @@ struct EventView: View {
                 .cornerRadius(10.0)
             }
             .popup(is_presented: $show_edit_popup) {
-                TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup)
+                TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique and not empty", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup)
             }
             .popup(is_presented: $show_new_task_popup) {
-                TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique", ok_callback: self.add_task, is_presented: self.$show_new_task_popup)
+                TextInputPopup<Event>(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup)
             }
     }
     
     private func activate_event() {
         do {
-            try event_context.save()
+            try core_context.save()
         }
         catch {
             let nsError = error as NSError
@@ -125,7 +135,7 @@ struct EventView: View {
         }
         
         do {
-            try event_context.save()
+            try core_context.save()
         }
         catch {
             let nsError = error as NSError
@@ -134,14 +144,14 @@ struct EventView: View {
     }
     
     private func edit_event_name(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
-        if events.contains(where: {$0.name! == input_text }) {
+        if events.contains(where: {$0.name! == input_text }) || input_text.isBlank {
             input_text = ""
             show_alert = true
         } else {
             event.name! = input_text
             
             do {
-                try event_context.save()
+                try core_context.save()
             }
             catch {
                 let nsError = error as NSError
@@ -152,21 +162,20 @@ struct EventView: View {
     }
     
     private func add_task(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
-        if events.contains(where: {$0.name! == input_text }) {
+        if tasks.contains(where: {$0.name! == input_text }) || input_text.isBlank {
             input_text = ""
             show_alert = true
         } else {
-            let new_task = Task(context: task_context)
+            let new_task = Task(context: core_context)
             new_task.name = input_text
             new_task.icon_name = ""
             new_task.is_done = false
             new_task.latitude = 0
             new_task.longitude = 0
-            new_task.addToEvent(event)
+            new_task.event = event
             
             do {
-                try task_context.save()
-                try event_context.save()
+                try core_context.save()
             }
             catch {
                 let nsError = error as NSError
@@ -178,9 +187,9 @@ struct EventView: View {
     
     private func delete_task(offsets: IndexSet) {
         withAnimation {
-            offsets.map { tasks[$0] }.forEach(task_context.delete)
+            offsets.map { tasks[$0] }.forEach(core_context.delete)
             do {
-                try task_context.save()
+                try core_context.save()
             }
             catch {
                 let nsError = error as NSError

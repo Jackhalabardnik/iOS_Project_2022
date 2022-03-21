@@ -55,6 +55,7 @@ struct TextInputPopup<T: NSFetchRequestResult>: View {
         }
         .animation(.easeOut)
         .transition(.move(edge: .bottom))
+        .background(Color.white)
     }
     
 }

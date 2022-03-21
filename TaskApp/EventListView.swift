@@ -30,14 +30,12 @@ struct EventListView: View {
                         HStack {
                             Text("Search: ")
                             .frame(height: 36)
-                            .padding([.leading, .trailing], 5)
                             
                             TextField("", text: $search_string)
                             .frame(height: 36)
-                            .padding([.leading, .trailing], 10)
                             .background(Color.gray.opacity(0.3))
                             .cornerRadius(10)
-                        }
+                        }.padding([.leading, .trailing], 10)
                         
                         Spacer()
                         
@@ -72,15 +70,15 @@ struct EventListView: View {
                     .cornerRadius(10.0)
                 }
             }
-            .popup(is_presented: $show_popup) {
-                TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique", ok_callback: self.add_event, is_presented: self.$show_popup)
             }
+            .popup(is_presented: $show_popup) {
+            TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup)
         }
         
     }
     
     private func add_event(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
-        if events.contains(where: {$0.name! == input_text }) {
+        if events.contains(where: {$0.name! == input_text }) || input_text.isBlank {
             input_text = ""
             show_alert = true
         } else {
