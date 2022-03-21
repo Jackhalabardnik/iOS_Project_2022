@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct EnterNamePopupView: View {
+struct EventNameEditPopupView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
     @FetchRequest(
@@ -9,12 +9,17 @@ struct EnterNamePopupView: View {
     private var events: FetchedResults<Event>
     
     @Binding var is_presented: Bool
+    
     @State var text = ""
     @State var show_name_alert = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
+            TextField("", text: $text)
+                .frame(height: 36)
+                .padding([.leading, .trailing], 10)
+                .background(Color.gray.opacity(0.3))
                 Text("Enter event name")
                     .font(.system(size: 25, weight: .bold, design: .default))
                 Button(action: {
@@ -27,14 +32,10 @@ struct EnterNamePopupView: View {
                         .foregroundColor(.black)
                 })
             }
-            TextField("", text: $text)
-                .frame(height: 36)
-                .padding([.leading, .trailing], 10)
-                .background(Color.gray.opacity(0.3))
                 .cornerRadius(10)
             HStack {
                 Spacer()
-                Button(action: self.addEvent,
+                Button(action: self.doEvent,
                        label: {
                     Text("Done")
                 })
@@ -55,7 +56,7 @@ struct EnterNamePopupView: View {
     }
     
     
-    private func addEvent(){
+    private func doEvent(){
         if events.contains(where: {$0.name! == text }) {
             text = ""
             show_name_alert = true
@@ -64,6 +65,7 @@ struct EnterNamePopupView: View {
             newEvent.name = text
             newEvent.is_active = false
             newEvent.is_highlighted = false
+            
             do {
                 try viewContext.save()
             }
@@ -76,9 +78,9 @@ struct EnterNamePopupView: View {
     }
 }
 
-struct EnterNamePopupView_Previews: PreviewProvider {
+struct EventNameEditPopupView_Previews: PreviewProvider {
     static var previews: some View {
-        EnterNamePopupView(is_presented: .constant(true))
+        EventNameEditPopupView(is_presented: .constant(true))
             .previewLayout(.sizeThatFits)
     }
 }

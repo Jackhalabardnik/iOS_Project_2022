@@ -49,7 +49,7 @@ struct EventListView: View {
                                     { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id : \.name)
                                 { event in
                                     NavigationLink(
-                                           destination: EventView(),
+                                        destination: EventView(event: event),
                                            label: {
                                             Text(event.name!)
                                        })
@@ -72,9 +72,7 @@ struct EventListView: View {
                 }
             }
             .popup(is_presented: $show_popup) {
-                BottomPopupView {
-                    EnterNamePopupView(is_presented: self.$show_popup)
-                }
+                EventNameAddPopupView(is_presented: self.$show_popup)
             }
         }
     }

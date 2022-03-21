@@ -1,18 +1,5 @@
 import SwiftUI
 
-struct RoundedCornersShape: Shape {
-    
-    let radius: CGFloat
-    let corners: UIRectCorner
-    
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect,
-                                byRoundingCorners: corners,
-                                cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
-    }
-}
-
 extension View {
     
     func popup<OverlayView: View>(is_presented: Binding<Bool>,
@@ -23,10 +10,6 @@ extension View {
             .animation(blurAnimation)
             .allowsHitTesting(!is_presented.wrappedValue)
             .modifier(OverlayModifier(is_presented: is_presented, overlayView: overlayView))
-    }
-    
-    func cornerRadius(radius: CGFloat, corners: UIRectCorner = .allCorners) -> some View {
-        clipShape(RoundedCornersShape(radius: radius, corners: corners))
     }
 }
 
@@ -44,29 +27,6 @@ struct OverlayModifier<OverlayView: View>: ViewModifier {
     
     func body(content: Content) -> some View {
         content.overlay(is_presented ? overlayView : nil)
-    }
-}
-
-struct BottomPopupView<Content: View>: View {
-    
-    let content: Content
-    
-    init(@ViewBuilder content: () -> Content) {
-        self.content = content()
-    }
-    
-    var body: some View {
-        GeometryReader { geometry in
-            VStack {
-                
-                self.content
-                    .padding(.bottom, geometry.safeAreaInsets.bottom)
-                    .background(Color.white)
-                    .cornerRadius(radius: 16, corners: [UIRectCorner.bottomLeft, UIRectCorner.bottomRight])
-            }
-        }
-        .animation(.easeOut)
-        .transition(.move(edge: .bottom))
     }
 }
 
