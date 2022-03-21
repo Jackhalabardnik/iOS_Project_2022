@@ -1,5 +1,11 @@
 import SwiftUI
 
+extension String {
+  var isBlank: Bool {
+    return allSatisfy({ $0.isWhitespace })
+  }
+}
+
 struct EventListView: View {
     
     @Environment(\.managedObjectContext) private var viewContext
@@ -9,6 +15,7 @@ struct EventListView: View {
     private var events: FetchedResults<Event>
     
     @State var show_popup = false
+    @State var search_string = ""
     
     var body: some View {
         NavigationView {
@@ -19,16 +26,37 @@ struct EventListView: View {
                     }
                     else {
                         
-                        List {
-                            ForEach(self.events, id : \.name) { event in
-                                NavigationLink(
-                                    destination: EventView(),
-                                    label: {
-                                        Text(event.name!).tag(event.name!)
-                                })
-                             }.onDelete(perform: delete_event)
+                        HStack {
+                            Text("Search: ")
+                            .frame(height: 36)
+                            .padding([.leading, .trailing], 5)
+                            
+                            TextField("", text: $search_string)
+                            .frame(height: 36)
+                            .padding([.leading, .trailing], 10)
+                            .background(Color.gray.opacity(0.3))
+                            .cornerRadius(10)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: 300)
+                        
+                        Spacer()
+                        
+                        if self.search_string.isBlank == false && (self.events.filter{$0.name!.lowercased().contains(self.search_string.lowercased())}).isEmpty {
+                            Text("There is no events containing given string")
+                        }
+                        else {
+                            List {
+                                ForEach(self.events.filter
+                                    { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id : \.name)
+                                { event in
+                                    NavigationLink(
+                                           destination: EventView(),
+                                           label: {
+                                            Text(event.name!)
+                                       })
+                                }.onDelete(perform: delete_event)
+                            }
+                        }
+                        
                     }
                     
                     Spacer()
