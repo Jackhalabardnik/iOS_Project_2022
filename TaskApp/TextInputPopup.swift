@@ -1,10 +1,11 @@
 import SwiftUI
+import CoreData
 
-struct TextInputPopup: View {
+struct TextInputPopup<T: NSFetchRequestResult>: View {
     
     var prompt_text: String
     var error_text: String
-    var ok_callback: () -> Bool
+    var ok_callback: (inout String, inout Bool, inout Bool) -> Void
     
     @Binding var is_presented: Bool
     
@@ -32,9 +33,8 @@ struct TextInputPopup: View {
             }
                 .cornerRadius(10)
             HStack {
-                Spacer()
                 Button(action: {
-                    self.show_alert = self.ok_callback()
+                    self.ok_callback(&self.text, &self.is_presented, &self.show_alert)
                 },
                        label: {
                     Text("Done")

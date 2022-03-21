@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 extension String {
   var isBlank: Bool {
@@ -72,8 +73,30 @@ struct EventListView: View {
                 }
             }
             .popup(is_presented: $show_popup) {
-                EventNameAddPopupView(is_presented: self.$show_popup)
+                TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique", ok_callback: self.add_event, is_presented: self.$show_popup)
             }
+        }
+        
+    }
+    
+    private func add_event(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
+        if events.contains(where: {$0.name! == input_text }) {
+            input_text = ""
+            show_alert = true
+        } else {
+            let newEvent = Event(context: viewContext)
+            newEvent.name = input_text
+            newEvent.is_active = false
+            newEvent.is_highlighted = false
+            
+            do {
+                try viewContext.save()
+            }
+            catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError),(nsError.userInfo)")
+            }
+            is_presented = false
         }
     }
     
