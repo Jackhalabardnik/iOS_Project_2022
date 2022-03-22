@@ -13,6 +13,7 @@ struct EventView: View {
     @State var search_string = ""
     @State var show_edit_popup = false
     @State var show_new_task_popup = false
+    @State var show_highlight_alert = false
     
     init(event: Event) {
         self.event = event
@@ -30,7 +31,6 @@ struct EventView: View {
             VStack {
                 HStack(spacing: 16) {
                     Text(self.event.name!)
-                    .font(.system(size: 25, weight: .bold, design: .default))
                     .padding([.leading, .trailing], 10)
                     Spacer()
                     VStack{
@@ -38,31 +38,50 @@ struct EventView: View {
                         self.show_edit_popup = true
                     }, label: {
                         Text("Edit")
-                        .font(.system(size: 25, weight: .bold, design: .default))
+                        .frame(maxWidth: 120, maxHeight: 40)
                     })
-                    .frame(maxWidth: 120, maxHeight: 40)
-                    
                     .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     }.padding([.leading, .trailing], 10)
                 }
+                .font(.system(size: 25, weight: .bold, design: .default))
                 
                 HStack(spacing: 16) {
-                    Toggle("Is active:", isOn: $event.is_active)
-                        .onReceive([self.event.is_active].publisher.first()) {value in
-                            self.activate_event()
-                    }
-                    Toggle("Is highlighted:", isOn: $event.is_highlighted)
-                        .onReceive([self.event.is_highlighted].publisher.first()) {value in
-                            self.highlight_event()
-                    }
-                }.padding([.leading, .trailing], 10)
+                    Button(action: activate_event, label: {
+                        HStack {
+                            if event.is_active {
+                                Text("Stop event")
+                                Image(systemName: "stop.circle.fill")
+                            } else {
+                                Text("Activate")
+                                Image(systemName: "play.circle.fill")
+                            }
+                        }
+                        
+                    })
+                
+                    Spacer()
+                    
+                    Button(action: highlight_event, label: {
+                        HStack {
+                            if event.is_highlighted {
+                                Text("Remove highlight")
+                                Image(systemName: "star.fill")
+                            } else {
+                                Text("Highlight")
+                                Image(systemName: "star")
+                            }
+                        }
+                    })
+                }
+                    .padding([.leading, .trailing], 10)
+                    .font(.system(size: 20, weight: .regular, design: .default))
                 
                 Spacer()
                 
                 if self.tasks.isEmpty {
-                    Text("Add some new events!")
+                    Text("Add some new tasks!")
                 }
                 else {
                     
@@ -102,21 +121,34 @@ struct EventView: View {
                     self.show_new_task_popup = true
                 }, label: {
                     Text("Add new task")
+                    .frame(maxWidth: .infinity, maxHeight: 60)
+                    .font(.system(size: 25, weight: .bold, design: .default))
                 })
-                .frame(maxWidth: .infinity, maxHeight: 60)
                 .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(10.0)
             }
             .popup(is_presented: $show_edit_popup) {
-                TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique and not empty", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup)
+                TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique and not empty", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup, input_text: self.event.name!)
             }
             .popup(is_presented: $show_new_task_popup) {
-                TextInputPopup<Event>(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup)
+                TextInputPopup<Event>(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup, input_text: "")
+            }
+            .alert(isPresented: $show_highlight_alert) {
+                Alert( title: Text("Error"),
+                       message: Text("Only active tasks can be highlighted"),
+                       dismissButton: .default(Text("OK")))
             }
     }
     
     private func activate_event() {
+        
+        event.is_active.toggle()
+        
+        if !event.is_active && event.is_highlighted {
+            event.is_highlighted = false
+        }
+        
         do {
             try core_context.save()
         }
@@ -128,19 +160,26 @@ struct EventView: View {
     
     private func highlight_event() {
         
-        if event.is_highlighted {
-            events.forEach({ if $0.name! != self.event.name! {
-                $0.is_highlighted = false
-                }})
+        if event.is_highlighted || event.is_active {
+            event.is_highlighted.toggle()
+            
+            if event.is_highlighted {
+                events.forEach({ if $0.name! != self.event.name! {
+                    $0.is_highlighted = false
+                    }})
+            }
+            
+            do {
+                try core_context.save()
+            }
+            catch {
+                let nsError = error as NSError
+                fatalError("Unresolved \(nsError.userInfo)")
+            }
+        } else {
+            show_highlight_alert = true
         }
         
-        do {
-            try core_context.save()
-        }
-        catch {
-            let nsError = error as NSError
-            fatalError("Unresolved \(nsError.userInfo)")
-        }
     }
     
     private func edit_event_name(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
@@ -168,6 +207,7 @@ struct EventView: View {
         } else {
             let new_task = Task(context: core_context)
             new_task.name = input_text
+            new_task.task_description = ""
             new_task.icon_name = ""
             new_task.is_done = false
             new_task.latitude = 0

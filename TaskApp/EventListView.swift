@@ -47,11 +47,23 @@ struct EventListView: View {
                                 ForEach(self.events.filter
                                     { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id : \.name)
                                 { event in
-                                    NavigationLink(
-                                        destination: EventView(event: event),
-                                           label: {
-                                            Text(event.name!)
-                                       })
+                                    ZStack {
+                                        HStack {
+                                            NavigationLink(
+                                             destination: EventView(event: event),
+                                                label: {
+                                                 Text(event.name!)
+                                            })
+                                        }
+                                        if event.is_highlighted {
+                                            HStack {
+                                                Spacer()
+                                                Image(systemName: "star.fill")
+                                                    .padding([.leading, .trailing], 30)
+                                            }
+                                        }
+                                    }
+                                    
                                 }.onDelete(perform: delete_event)
                             }
                         }
@@ -63,8 +75,9 @@ struct EventListView: View {
                         self.show_popup = true
                     }, label: {
                         Text("Add new event")
+                        .frame(maxWidth: .infinity, maxHeight: 60)
+                        .font(.system(size: 25, weight: .bold, design: .default))
                     })
-                    .frame(maxWidth: .infinity, maxHeight: 60)
                     .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10.0)
@@ -72,7 +85,7 @@ struct EventListView: View {
             }
             }
             .popup(is_presented: $show_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup)
+            TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup, input_text: "")
         }
         
     }
