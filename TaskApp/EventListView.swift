@@ -46,46 +46,46 @@ struct EventListView: View {
                             List {
                                 ForEach(self.events.filter
                                     { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id : \.name)
-                                { event in
-                                    ZStack {
-                                        HStack {
-                                            NavigationLink(
-                                             destination: EventView(event: event),
-                                                label: {
-                                                 Text(event.name!)
-                                            })
-                                        }
-                                        if event.is_highlighted {
+                                    { event in
+                                        ZStack {
                                             HStack {
-                                                Spacer()
-                                                Image(systemName: "star.fill")
-                                                    .padding([.leading, .trailing], 30)
+                                                NavigationLink(
+                                                 destination: EventView(event: event),
+                                                    label: {
+                                                     Text(event.name!)
+                                                })
+                                            }
+                                            if event.is_highlighted {
+                                                HStack {
+                                                    Spacer()
+                                                    Image(systemName: "star.fill")
+                                                        .padding([.leading, .trailing], 30)
+                                                }
                                             }
                                         }
-                                    }
-                                    
-                                }.onDelete(perform: delete_event)
+                                        
+                                    }.onDelete(perform: delete_event)
+                                }
                             }
                         }
                         
+                        Spacer()
+                        Button(action: {
+                            self.show_popup = true
+                        }, label: {
+                            Text("Add new event")
+                            .frame(maxWidth: .infinity, maxHeight: 60)
+                            .font(.system(size: 20, weight: .bold, design: .default))
+                        })
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(10.0)
                     }
-                    
-                    Spacer()
-                    Button(action: {
-                        self.show_popup = true
-                    }, label: {
-                        Text("Add new event")
-                        .frame(maxWidth: .infinity, maxHeight: 60)
-                        .font(.system(size: 25, weight: .bold, design: .default))
-                    })
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10.0)
                 }
-            }
             }
             .popup(is_presented: $show_popup) {
             TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup, input_text: "")
+            .navigationViewStyle(StackNavigationViewStyle())
         }
         
     }

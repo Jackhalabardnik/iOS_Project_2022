@@ -14,6 +14,8 @@ struct EventView: View {
     @State var show_edit_popup = false
     @State var show_new_task_popup = false
     @State var show_highlight_alert = false
+    @State var show_deactivate_alert = false
+    @State var force_deactivate = false
     
     init(event: Event) {
         self.event = event
@@ -32,6 +34,7 @@ struct EventView: View {
                 HStack(spacing: 16) {
                     Text(self.event.name!)
                     .padding([.leading, .trailing], 10)
+                    .font(.system(size: 25, weight: .bold, design: .default))
                     Spacer()
                     VStack{
                     Button(action: {
@@ -39,24 +42,20 @@ struct EventView: View {
                     }, label: {
                         Text("Edit")
                         .frame(maxWidth: 120, maxHeight: 40)
+                        .font(.system(size: 20, weight: .bold, design: .default))
                     })
                     .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10)
                     }.padding([.leading, .trailing], 10)
                 }
-                .font(.system(size: 25, weight: .bold, design: .default))
+                
                 
                 HStack(spacing: 16) {
                     Button(action: activate_event, label: {
                         HStack {
-                            if event.is_active {
-                                Text("Stop event")
-                                Image(systemName: "stop.circle.fill")
-                            } else {
-                                Text("Activate")
-                                Image(systemName: "play.circle.fill")
-                            }
+                            Text(event.is_active ? "Stop event" : "Start event")
+                            Image(systemName: event.is_active ?  "stop.circle.fill" : "play.circle.fill")
                         }
                         
                     })
@@ -65,13 +64,8 @@ struct EventView: View {
                     
                     Button(action: highlight_event, label: {
                         HStack {
-                            if event.is_highlighted {
-                                Text("Remove highlight")
-                                Image(systemName: "star.fill")
-                            } else {
-                                Text("Highlight")
-                                Image(systemName: "star")
-                            }
+                            Text(event.is_highlighted ? "Remove highlight" : "Highlight")
+                            Image(systemName: event.is_highlighted ?  "star.fill" : "star")
                         }
                     })
                 }
@@ -105,13 +99,26 @@ struct EventView: View {
                             ForEach(self.tasks.filter
                                 { self.search_string.isBlank || $0.name!.lowercased().contains(self.search_string.lowercased()) }, id: \.name)
                             { task in
-                                NavigationLink(
-                                 destination: TaskView(task: task),
-                                    label: {
-                                     Text(task.name!)
-                                })
+                                HStack {
+                                    NavigationLink(
+                                    destination: TaskView(task: task)) {
+                                        Button(action: {
+                                            self.checkbox_task(given_task: task)
+                                        }, label: {
+                                            Image(systemName: task.is_done ? "checkmark.square.fill" : "checkmark.square")
+                                                .imageScale(.large)
+                                        })
+                                        
+                                        Spacer()
+                                        
+                                        Text(task.name!)
+                                    }
+                                }
+                                
                             }.onDelete(perform: delete_task)
                         }
+                            .buttonStyle(PlainButtonStyle())
+                            .listStyle(GroupedListStyle())
                     }
                     
                 }
@@ -122,7 +129,7 @@ struct EventView: View {
                 }, label: {
                     Text("Add new task")
                     .frame(maxWidth: .infinity, maxHeight: 60)
-                    .font(.system(size: 25, weight: .bold, design: .default))
+                    .font(.system(size: 20, weight: .bold, design: .default))
                 })
                 .background(Color.green)
                 .foregroundColor(.white)
@@ -139,22 +146,40 @@ struct EventView: View {
                        message: Text("Only active tasks can be highlighted"),
                        dismissButton: .default(Text("OK")))
             }
+            .alert(isPresented: $show_deactivate_alert) {
+                Alert(title: Text("Warning"), message: Text("Not all tasks are completed"), primaryButton: .default(Text("OK, deactivate anyway"), action: {
+                    self.force_deactivate = true
+                    self.activate_event()
+                }), secondaryButton: .cancel())
+        }
+            
     }
     
     private func activate_event() {
         
-        event.is_active.toggle()
-        
-        if !event.is_active && event.is_highlighted {
-            event.is_highlighted = false
+        if !force_deactivate && event.is_active && !tasks.allSatisfy({$0.is_done}) {
+            show_deactivate_alert = true
         }
-        
-        do {
-            try core_context.save()
-        }
-        catch {
-            let nsError = error as NSError
-            fatalError("Unresolved \(nsError.userInfo)")
+        else {
+            force_deactivate = false
+            
+            if event.is_active {
+                event.is_highlighted = false
+            } else {
+                tasks.forEach {
+                    $0.is_done = false
+                }
+            }
+            
+            event.is_active.toggle()
+            
+            do {
+                try core_context.save()
+            }
+            catch {
+                let nsError = error as NSError
+                fatalError("Unresolved \(nsError.userInfo)")
+            }
         }
     }
     
@@ -235,6 +260,17 @@ struct EventView: View {
                 let nsError = error as NSError
                 fatalError("Unresolved \(nsError.userInfo)")
             }
+        }
+    }
+    
+    private func checkbox_task(given_task: Task) {
+        given_task.is_done.toggle()
+        do {
+            try core_context.save()
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved \(nsError.userInfo)")
         }
     }
     

@@ -36,7 +36,7 @@ struct TaskView: View {
                         self.show_edit_event_popup = true
                     }, label: {
                         Text("Edit")
-                            .font(.system(size: 25, weight: .bold, design: .default))
+                            .font(.system(size: 20, weight: .bold, design: .default))
                             .frame(maxWidth: 120, maxHeight: 40)
                     })
                         .background(Color.green)
@@ -44,7 +44,7 @@ struct TaskView: View {
                         .cornerRadius(10)
                 }.padding([.leading, .trailing], 10)
             }
-            Spacer()
+            
             VStack {
                 if task.task_description!.isBlank {
                     Button(action: {
@@ -58,11 +58,14 @@ struct TaskView: View {
                     .foregroundColor(.white)
                     .cornerRadius(10)
                 } else {
+                    
                     Text("Description")
                         .font(.system(size: 25, weight: .bold, design: .default))
                     Text(task.task_description!)
                 }
             }.padding([.leading, .trailing], 10)
+            
+            Spacer()
             
         }
         .popup(is_presented: $show_edit_event_popup) {
