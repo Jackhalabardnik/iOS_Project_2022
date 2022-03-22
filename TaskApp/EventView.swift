@@ -10,12 +10,15 @@ struct EventView: View {
     @FetchRequest var tasks: FetchedResults<Task>
     
     @ObservedObject var event: Event
+    
     @State var search_string = ""
+    @State var force_deactivate = false
+    
     @State var show_edit_popup = false
     @State var show_new_task_popup = false
     @State var show_highlight_alert = false
     @State var show_deactivate_alert = false
-    @State var force_deactivate = false
+    
     
     init(event: Event) {
         self.event = event
@@ -264,14 +267,17 @@ struct EventView: View {
     }
     
     private func checkbox_task(given_task: Task) {
-        given_task.is_done.toggle()
-        do {
-            try core_context.save()
+        if  event.is_active {
+            given_task.is_done.toggle()
+            do {
+                try core_context.save()
+            }
+            catch {
+                let nsError = error as NSError
+                fatalError("Unresolved \(nsError.userInfo)")
+            }
         }
-        catch {
-            let nsError = error as NSError
-            fatalError("Unresolved \(nsError.userInfo)")
-        }
+        
     }
     
     

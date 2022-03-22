@@ -51,19 +51,42 @@ struct TaskView: View {
                         self.show_description_edit_popup = true
                     }){
                         Text("Add some description")
-                            .font(.system(size: 25, weight: .bold, design: .default))
+                            .font(.system(size: 15, weight: .bold, design: .default))
                             .frame(maxWidth: .infinity, maxHeight: 40)
                     }
                     .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(10)
                 } else {
-                    
-                    Text("Description")
-                        .font(.system(size: 25, weight: .bold, design: .default))
-                    Text(task.task_description!)
+                    VStack {
+                        HStack {
+                            Text("Description")
+                                .fontWeight(.bold)
+                            Spacer()
+                            Button(action: {
+                                self.show_description_edit_popup = true
+                            }){
+                                Image(systemName: "square.and.pencil")
+                            }
+                        }
+                        HStack {
+                            Text(task.task_description!)
+                                .multilineTextAlignment(.center)
+                                .padding(5)
+                                .frame(maxWidth: .infinity)
+                        }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .stroke(Color.black, lineWidth: 2)
+                            )
+                        
+                            
+                    }
+                        
                 }
-            }.padding([.leading, .trailing], 10)
+            }.padding(10)
+                
+                
             
             Spacer()
             
