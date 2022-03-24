@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct TaskView: View {
     @Environment(\.managedObjectContext) private var core_context
@@ -12,6 +13,7 @@ struct TaskView: View {
     @State var show_description_edit_popup = false
     
     init(task: Task) {
+        
         self.task = task
         
         _tasks = FetchRequest(
@@ -86,9 +88,27 @@ struct TaskView: View {
                 }
             }.padding(10)
                 
-                
-            
             Spacer()
+            if task.is_map_set {
+                
+                MapViewUI(latitude: 23, longitude: 23)
+                    .frame(maxHeight: 400)
+                
+                Spacer()
+            }
+            else {
+                Button(action: {
+                    self.show_description_edit_popup = true
+                }){
+                    Text("Add some description")
+                        .font(.system(size: 15, weight: .bold, design: .default))
+                        .frame(maxWidth: .infinity, maxHeight: 40)
+                }
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+            
             
         }
         .popup(is_presented: $show_edit_event_popup) {

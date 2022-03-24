@@ -236,7 +236,7 @@ struct EventView: View {
             let new_task = Task(context: core_context)
             new_task.name = input_text
             new_task.task_description = ""
-            new_task.icon_name = ""
+            new_task.is_map_set = false
             new_task.is_done = false
             new_task.latitude = 0
             new_task.longitude = 0
