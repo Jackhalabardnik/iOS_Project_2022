@@ -104,7 +104,7 @@ struct EventView: View {
                             { task in
                                 HStack {
                                     NavigationLink(
-                                    destination: TaskView(task: task)) {
+                                    destination: TaskView(display_task: task)) {
                                         Button(action: {
                                             self.checkbox_task(given_task: task)
                                         }, label: {
@@ -238,8 +238,8 @@ struct EventView: View {
             new_task.task_description = ""
             new_task.is_map_set = false
             new_task.is_done = false
-            new_task.latitude = 0
-            new_task.longitude = 0
+            new_task.latitude = 51.246452
+            new_task.longitude = 22.568445
             new_task.event = event
             
             do {

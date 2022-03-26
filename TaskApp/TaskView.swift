@@ -6,30 +6,32 @@ struct TaskView: View {
     
     @FetchRequest var tasks: FetchedResults<Task>
     
-    @ObservedObject var task: Task
     @State var search_string = ""
     @State var show_edit_event_popup = false
     @State var show_new_task_popup = false
     @State var show_description_edit_popup = false
+    @State var show_edit_pin_popup = false
     
-    init(task: Task) {
-        
-        self.task = task
+    @ObservedObject var choosen_task: Task
+    
+    init(display_task: Task) {
+        self.choosen_task = display_task
         
         _tasks = FetchRequest(
             sortDescriptors: [
                 NSSortDescriptor(keyPath: \Task.name, ascending: true)
             ],
-            predicate: NSPredicate(format: "event == %@", task.event!),
+            predicate: NSPredicate(format: "name == %@", display_task.name!),
             animation: .default
         )
+        
     }
     
     
     var body: some View {
         VStack {
             HStack(spacing: 16) {
-                Text(self.task.name!)
+                Text(self.choosen_task.name!)
                     .font(.system(size: 25, weight: .bold, design: .default))
                     .padding([.leading, .trailing], 10)
                 Spacer()
@@ -48,7 +50,7 @@ struct TaskView: View {
             }
             
             VStack {
-                if task.task_description!.isBlank {
+                if choosen_task.task_description!.isBlank {
                     Button(action: {
                         self.show_description_edit_popup = true
                     }){
@@ -72,7 +74,7 @@ struct TaskView: View {
                             }
                         }
                         HStack {
-                            Text(task.task_description!)
+                            Text(choosen_task.task_description!)
                                 .multilineTextAlignment(.center)
                                 .padding(5)
                                 .frame(maxWidth: .infinity)
@@ -89,18 +91,18 @@ struct TaskView: View {
             }.padding(10)
                 
             Spacer()
-            if task.is_map_set {
-                
-                MapViewUI(latitude: 23, longitude: 23)
+            
+            if choosen_task.is_map_set {
+
+                MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude)
                     .frame(maxHeight: 400)
-                
-                Spacer()
+
             }
             else {
                 Button(action: {
-                    self.show_description_edit_popup = true
+                    self.show_edit_pin_popup = true
                 }){
-                    Text("Add some description")
+                    Text("Add new task location")
                         .font(.system(size: 15, weight: .bold, design: .default))
                         .frame(maxWidth: .infinity, maxHeight: 40)
                 }
@@ -109,14 +111,19 @@ struct TaskView: View {
                 .cornerRadius(10)
             }
             
+            Spacer()
             
         }
         .popup(is_presented: $show_edit_event_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter new task name", error_text: "Task name has to be unique and not empty", ok_callback: self.edit_task_name, is_presented: self.$show_edit_event_popup, input_text: self.task.name!)
+            TextInputPopup<Event>(prompt_text: "Enter new task name", error_text: "Task name has to be unique and not empty", ok_callback: self.edit_task_name, is_presented: self.$show_edit_event_popup, input_text: self.choosen_task.name!)
         }
         .popup(is_presented: $show_description_edit_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter description", error_text: "", ok_callback: self.edit_task_description, is_presented: self.$show_description_edit_popup, input_text: self.task.task_description!)
+            TextInputPopup<Event>(prompt_text: "Enter description", error_text: "", ok_callback: self.edit_task_description, is_presented: self.$show_description_edit_popup, input_text: self.choosen_task.task_description!)
         }
+        .popup(is_presented: $show_edit_pin_popup) {
+            PinChoosePopup(is_presented: self.$show_edit_pin_popup, task: self.choosen_task)
+        }
+        
     }
     
     
@@ -125,7 +132,7 @@ struct TaskView: View {
             input_text = ""
             show_alert = true
         } else {
-            task.name! = input_text
+            choosen_task.name! = input_text
             
             do {
                 try core_context.save()
@@ -139,7 +146,7 @@ struct TaskView: View {
     }
     
     private func edit_task_description(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
-        task.task_description = input_text
+        choosen_task.task_description = input_text
 
         do {
             try core_context.save()
@@ -150,11 +157,5 @@ struct TaskView: View {
         }
         is_presented = false
         
-    }
-}
-
-struct TaskView_Previews: PreviewProvider {
-    static var previews: some View {
-        TaskView(task: Task())
     }
 }

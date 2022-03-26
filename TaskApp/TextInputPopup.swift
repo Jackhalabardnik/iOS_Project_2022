@@ -57,6 +57,7 @@ struct TextInputPopup<T: NSFetchRequestResult>: View {
                 },
                     label: {
                     Text("Done")
+                        .font(.system(size: 15, weight: .bold, design: .default))
                     .frame(maxWidth: .infinity, maxHeight: 60)
                 })
                 .background(Color.green)
