@@ -12,10 +12,10 @@ struct TaskView: View {
     @State var show_description_edit_popup = false
     @State var show_edit_pin_popup = false
     
-    @ObservedObject var choosen_task: Task
+    @State var choosen_task: Task
     
     init(display_task: Task) {
-        self.choosen_task = display_task
+        self._choosen_task = State(initialValue: display_task)
         
         _tasks = FetchRequest(
             sortDescriptors: [
@@ -30,24 +30,23 @@ struct TaskView: View {
     
     var body: some View {
         VStack {
-            HStack(spacing: 16) {
+            HStack {
                 Text(self.choosen_task.name!)
                     .font(.system(size: 25, weight: .bold, design: .default))
-                    .padding([.leading, .trailing], 10)
+                Button(action: {
+                    self.show_edit_event_popup = true
+                }, label: {
+                    Image(systemName: "square.and.pencil")
+                })
                 Spacer()
-                VStack{
-                    Button(action: {
-                        self.show_edit_event_popup = true
-                    }, label: {
-                        Text("Edit")
-                            .font(.system(size: 20, weight: .bold, design: .default))
-                            .frame(maxWidth: 120, maxHeight: 40)
-                    })
-                        .background(Color.green)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }.padding([.leading, .trailing], 10)
+                Text(choosen_task.is_done ? "Done" : "Not done")
+                Button(action: self.checkbox_task, label: {
+                    Image(systemName: choosen_task.is_done ? "checkmark.square.fill" : "checkmark.square")
+                        .imageScale(.large)
+                })
+                    .disabled(!self.choosen_task.event!.is_active)
             }
+                .padding([.leading, .trailing], 10)
             
             VStack {
                 if choosen_task.task_description!.isBlank {
@@ -66,12 +65,12 @@ struct TaskView: View {
                         HStack {
                             Text("Description")
                                 .fontWeight(.bold)
-                            Spacer()
                             Button(action: {
                                 self.show_description_edit_popup = true
                             }){
                                 Image(systemName: "square.and.pencil")
                             }
+                            Spacer()
                         }
                         HStack {
                             Text(choosen_task.task_description!)
@@ -83,8 +82,6 @@ struct TaskView: View {
                                 RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color.black, lineWidth: 2)
                             )
-                        
-                            
                     }
                         
                 }
@@ -93,6 +90,17 @@ struct TaskView: View {
             Spacer()
             
             if choosen_task.is_map_set {
+                
+                HStack {
+                    Text("Map")
+                        .fontWeight(.bold)
+                    Button(action: {
+                        self.show_edit_pin_popup = true
+                    }){
+                        Image(systemName: "square.and.pencil")
+                    }
+                    Spacer()
+                }.padding([.leading, .trailing], 10)
 
                 MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude)
                     .frame(maxHeight: 400)
@@ -109,6 +117,7 @@ struct TaskView: View {
                 .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(10)
+                .padding([.leading, .trailing], 10)
             }
             
             Spacer()
@@ -121,7 +130,7 @@ struct TaskView: View {
             TextInputPopup<Event>(prompt_text: "Enter description", error_text: "", ok_callback: self.edit_task_description, is_presented: self.$show_description_edit_popup, input_text: self.choosen_task.task_description!)
         }
         .popup(is_presented: $show_edit_pin_popup) {
-            PinChoosePopup(is_presented: self.$show_edit_pin_popup, task: self.choosen_task)
+            PinChoosePopup(is_presented: self.$show_edit_pin_popup, task: self.$choosen_task)
         }
         
     }
@@ -156,6 +165,17 @@ struct TaskView: View {
             fatalError("Unresolved error \(nsError),(nsError.userInfo)")
         }
         is_presented = false
-        
+    }
+    
+    private func checkbox_task() {
+        choosen_task.is_done.toggle()
+
+        do {
+            try core_context.save()
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError),(nsError.userInfo)")
+        }
     }
 }

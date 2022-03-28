@@ -23,10 +23,8 @@ struct MapViewUI: UIViewRepresentable {
         view.setRegion(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), span: MKCoordinateSpan(latitudeDelta: 0.03, longitudeDelta: 0.03)), animated: true)
         
         if view.annotations.count > 0 {
-            print("Before: \(view.annotations.count)")
             let annotations = view.annotations
             view.removeAnnotations(annotations)
-            print("After: \(view.annotations.count)")
         }
         
         task_annotation.coordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)

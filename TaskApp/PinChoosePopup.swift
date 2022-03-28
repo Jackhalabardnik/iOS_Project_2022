@@ -1,36 +1,38 @@
 import SwiftUI
 import CoreData
 
-struct PinChoosePopup: View {
+struct PinChoosePopup: View{
+    
     @Environment(\.managedObjectContext) private var core_context
     
-    @FetchRequest var tasks: FetchedResults<Task>
-    
-    @ObservedObject var choosen_task: Task
+    @Binding var choosen_task: Task
     
     @Binding var is_presented: Bool
     
-    @State var show_bad_number_popup = false
+    @State private var show_bad_number_popup = false
     
-    @State var latitude_text: String
-    @State var longitude_text: String
+    @State private var latitude_number: Double
+    @State private var longitude_number: Double
     
-    init(is_presented: Binding<Bool>, task: Task) {
-        
-        _tasks = FetchRequest(
-            sortDescriptors: [
-                NSSortDescriptor(keyPath: \Task.name, ascending: true)
-            ],
-            predicate: NSPredicate(format: "name == %@", task.name!),
-            animation: .default
-        )
-        
+    @State private var latitude_text: String
+    @State private var longitude_text: String
+    
+    @State private var current_map_set: Bool
+    
+    var location_fetcher = LocationFetcher()
+    
+    init(is_presented: Binding<Bool>, task: Binding<Task>) {
         self._is_presented = is_presented
         
-        self.choosen_task = task
+        self._choosen_task = task
         
-        self._latitude_text = State(initialValue: String(task.latitude))
-        self._longitude_text = State(initialValue: String(task.longitude))
+        self._latitude_number = State(initialValue: task.wrappedValue.latitude)
+        self._longitude_number = State(initialValue: task.wrappedValue.longitude)
+        
+        self._latitude_text = State(initialValue: String(task.wrappedValue.latitude))
+        self._longitude_text = State(initialValue: String(task.wrappedValue.longitude))
+        
+        self._current_map_set = State(initialValue: task.wrappedValue.is_map_set)
     }
     
     var body: some View {
@@ -76,7 +78,7 @@ struct PinChoosePopup: View {
             .foregroundColor(.white)
             .cornerRadius(10)
 
-            MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude)
+            MapViewUI(latitude: $latitude_number, longitude: $longitude_number)
                 .frame(maxHeight: 300)
 
             HStack {
@@ -105,11 +107,33 @@ struct PinChoosePopup: View {
     }
     
     private func finish() {
+        
+        if current_map_set {
+            choosen_task.latitude = latitude_number
+            choosen_task.longitude = longitude_number
+        }
+        
+        choosen_task.is_map_set = current_map_set
+        
+        do {
+            try core_context.save()
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved \(nsError.userInfo)")
+        }
+        
         is_presented = false
     }
     
     private func getLocation() {
+        location_fetcher.start()
         
+        if let location = location_fetcher.lastKnownLocation {
+            latitude_text = String(location.latitude)
+            longitude_text = String(location.longitude)
+            setPin()
+        }
     }
     
     private func setPin() {
@@ -127,10 +151,10 @@ struct PinChoosePopup: View {
             return
         }
         
-        choosen_task.latitude = latitude_double
-        choosen_task.longitude = longitude_double
-        choosen_task.is_map_set = true
-        
+        latitude_number = latitude_double
+        longitude_number = longitude_double
+        current_map_set = true
     }
+    
     
 }

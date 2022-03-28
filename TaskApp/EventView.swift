@@ -34,24 +34,17 @@ struct EventView: View {
     
     var body: some View {
             VStack {
-                HStack(spacing: 16) {
+                HStack {
                     Text(self.event.name!)
-                    .padding([.leading, .trailing], 10)
                     .font(.system(size: 25, weight: .bold, design: .default))
-                    Spacer()
-                    VStack{
                     Button(action: {
                         self.show_edit_popup = true
-                    }, label: {
-                        Text("Edit")
-                        .frame(maxWidth: 120, maxHeight: 40)
-                        .font(.system(size: 20, weight: .bold, design: .default))
-                    })
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    }.padding([.leading, .trailing], 10)
-                }
+                        }, label: {
+                            Image(systemName: "square.and.pencil")
+                        })
+                    Spacer()
+                    }
+                        .padding([.leading, .trailing], 10)
                 
                 
                 HStack(spacing: 16) {
@@ -71,6 +64,7 @@ struct EventView: View {
                             Image(systemName: event.is_highlighted ?  "star.fill" : "star")
                         }
                     })
+                        .disabled(!self.event.is_active)
                 }
                     .padding([.leading, .trailing], 10)
                     .font(.system(size: 20, weight: .regular, design: .default))
@@ -111,6 +105,7 @@ struct EventView: View {
                                             Image(systemName: task.is_done ? "checkmark.square.fill" : "checkmark.square")
                                                 .imageScale(.large)
                                         })
+                                            .disabled(!self.event.is_active)
                                         
                                         Spacer()
                                         
@@ -143,11 +138,6 @@ struct EventView: View {
             }
             .popup(is_presented: $show_new_task_popup) {
                 TextInputPopup<Event>(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup, input_text: "")
-            }
-            .alert(isPresented: $show_highlight_alert) {
-                Alert( title: Text("Error"),
-                       message: Text("Only active tasks can be highlighted"),
-                       dismissButton: .default(Text("OK")))
             }
             .alert(isPresented: $show_deactivate_alert) {
                 Alert(title: Text("Warning"), message: Text("Not all tasks are completed"), primaryButton: .default(Text("OK, deactivate anyway"), action: {
@@ -187,27 +177,21 @@ struct EventView: View {
     }
     
     private func highlight_event() {
+        event.is_highlighted.toggle()
         
-        if event.is_highlighted || event.is_active {
-            event.is_highlighted.toggle()
-            
-            if event.is_highlighted {
-                events.forEach({ if $0.name! != self.event.name! {
-                    $0.is_highlighted = false
-                    }})
-            }
-            
-            do {
-                try core_context.save()
-            }
-            catch {
-                let nsError = error as NSError
-                fatalError("Unresolved \(nsError.userInfo)")
-            }
-        } else {
-            show_highlight_alert = true
+        if event.is_highlighted {
+            events.forEach({ if $0.name! != self.event.name! {
+                $0.is_highlighted = false
+                }})
         }
         
+        do {
+            try core_context.save()
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved \(nsError.userInfo)")
+        }
     }
     
     private func edit_event_name(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
@@ -267,17 +251,14 @@ struct EventView: View {
     }
     
     private func checkbox_task(given_task: Task) {
-        if  event.is_active {
-            given_task.is_done.toggle()
-            do {
-                try core_context.save()
-            }
-            catch {
-                let nsError = error as NSError
-                fatalError("Unresolved \(nsError.userInfo)")
-            }
+        given_task.is_done.toggle()
+        do {
+            try core_context.save()
         }
-        
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved \(nsError.userInfo)")
+        }
     }
     
     
