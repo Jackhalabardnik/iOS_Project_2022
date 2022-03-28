@@ -21,7 +21,7 @@ struct TaskView: View {
             sortDescriptors: [
                 NSSortDescriptor(keyPath: \Task.name, ascending: true)
             ],
-            predicate: NSPredicate(format: "name == %@", display_task.name!),
+            predicate: NSPredicate(format: "event == %@", display_task.event!),
             animation: .default
         )
         
@@ -37,16 +37,18 @@ struct TaskView: View {
                     self.show_edit_event_popup = true
                 }, label: {
                     Image(systemName: "square.and.pencil")
+                        .foregroundColor(.blue)
                 })
                 Spacer()
                 Text(choosen_task.is_done ? "Done" : "Not done")
                 Button(action: self.checkbox_task, label: {
                     Image(systemName: choosen_task.is_done ? "checkmark.square.fill" : "checkmark.square")
                         .imageScale(.large)
+                        .foregroundColor(choosen_task.is_done ? .green : .black)
                 })
                     .disabled(!self.choosen_task.event!.is_active)
             }
-                .padding([.leading, .trailing], 10)
+            .padding([.leading, .trailing], 10)
             
             VStack {
                 if choosen_task.task_description!.isBlank {
@@ -69,6 +71,7 @@ struct TaskView: View {
                                 self.show_description_edit_popup = true
                             }){
                                 Image(systemName: "square.and.pencil")
+                                    .foregroundColor(.blue)
                             }
                             Spacer()
                         }
@@ -78,15 +81,15 @@ struct TaskView: View {
                                 .padding(5)
                                 .frame(maxWidth: .infinity)
                         }
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.black, lineWidth: 2)
-                            )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.black, lineWidth: 2)
+                        )
                     }
-                        
+                    
                 }
             }.padding(10)
-                
+            
             Spacer()
             
             if choosen_task.is_map_set {
@@ -98,13 +101,21 @@ struct TaskView: View {
                         self.show_edit_pin_popup = true
                     }){
                         Image(systemName: "square.and.pencil")
+                            .foregroundColor(.blue)
                     }
                     Spacer()
+                    
+                    Button(action: self.remove_map, label: {
+                        Image(systemName: "trash.fill")
+                            .imageScale(.medium)
+                            .foregroundColor(.black)
+                    })
+                        .padding([.leading, .trailing], 10)
                 }.padding([.leading, .trailing], 10)
-
+                
                 MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude)
                     .frame(maxHeight: 400)
-
+                
             }
             else {
                 Button(action: {
@@ -137,7 +148,7 @@ struct TaskView: View {
     
     
     private func edit_task_name(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
-        if tasks.contains(where: {$0.name! == input_text }) || input_text.isBlank {
+        if tasks.contains(where: {$0.name! == input_text && $0.name! != choosen_task.name!}) || input_text.isBlank {
             input_text = ""
             show_alert = true
         } else {
@@ -156,7 +167,7 @@ struct TaskView: View {
     
     private func edit_task_description(input_text: inout String, is_presented: inout Bool, show_alert: inout Bool){
         choosen_task.task_description = input_text
-
+        
         do {
             try core_context.save()
         }
@@ -169,7 +180,19 @@ struct TaskView: View {
     
     private func checkbox_task() {
         choosen_task.is_done.toggle()
-
+        
+        do {
+            try core_context.save()
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError),(nsError.userInfo)")
+        }
+    }
+    
+    private func remove_map() {
+        choosen_task.is_map_set = false
+        
         do {
             try core_context.save()
         }

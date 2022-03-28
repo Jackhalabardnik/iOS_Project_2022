@@ -39,58 +39,70 @@ struct PinChoosePopup: View{
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Enter pin")
-                .font(.system(size: 25, weight: .bold, design: .default))
-
+                    .font(.system(size: 25, weight: .bold, design: .default))
+                
                 Spacer()
-
+                
                 Button(action: {
                     self.is_presented = false
                 }, label: {
                     Image(systemName: "xmark")
                         .imageScale(.medium)
-                        .background(Color.black.opacity(0.06))
-                        .cornerRadius(16)
-                        .foregroundColor(.black)
                 })
             }
-                .padding([.leading, .trailing], 10)
-
+            .padding([.leading, .trailing], 10)
+            
             Button(action: getLocation,
-                label: {
-                Text("Get your location")
-                .font(.system(size: 15, weight: .bold, design: .default))
-                .frame(maxWidth: .infinity, maxHeight: 30)
+                   label: {
+                    Text("Get your location")
+                        .font(.system(size: 15, weight: .bold, design: .default))
+                        .frame(maxWidth: .infinity, maxHeight: 30)
             })
-            .background(Color.green)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-
-            TextField("Latitude", text: self.$latitude_text)
-            TextField("Longitude", text: self.$longitude_text)
-
-            Button(action: setPin,
-                label: {
-                Text("Set pin")
-                .font(.system(size: 15, weight: .bold, design: .default))
-                .frame(maxWidth: .infinity, maxHeight: 30)
-            })
-            .background(Color.green)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-
-            MapViewUI(latitude: $latitude_number, longitude: $longitude_number)
-                .frame(maxHeight: 300)
-
-            HStack {
-                Button(action: finish,
-                    label: {
-                    Text("Done")
-                    .font(.system(size: 15, weight: .bold, design: .default))
-                    .frame(maxWidth: .infinity, maxHeight: 30)
-                })
                 .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(10)
+            
+            HStack {
+                Text("Latitude:")
+                TextField("", text: self.$latitude_text)
+                    .frame(height: 36)
+                    .padding([.leading, .trailing], 10)
+                    .background(Color.gray.opacity(0.3))
+                    .cornerRadius(10)
+            }
+            
+            HStack {
+                Text("Longitude:")
+                TextField("", text: self.$longitude_text)
+                    .frame(height: 36)
+                    .padding([.leading, .trailing], 10)
+                    .background(Color.gray.opacity(0.3))
+                    .cornerRadius(10)
+            }
+            
+            Button(action: setPin,
+                   label: {
+                    Text("Set pin")
+                        .font(.system(size: 15, weight: .bold, design: .default))
+                        .frame(maxWidth: .infinity, maxHeight: 30)
+            })
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            
+            MapViewUI(latitude: $latitude_number, longitude: $longitude_number)
+                .frame(maxHeight: 300)
+            
+            HStack {
+                Button(action: finish,
+                       label: {
+                        Text("Done")
+                            .font(.system(size: 15, weight: .bold, design: .default))
+                            .frame(maxWidth: .infinity, maxHeight: 30)
+                })
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
             }
         }
         .padding()
