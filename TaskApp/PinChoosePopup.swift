@@ -90,7 +90,7 @@ struct PinChoosePopup: View{
                 .foregroundColor(.white)
                 .cornerRadius(10)
             
-            MapViewUI(latitude: $latitude_number, longitude: $longitude_number)
+            MapViewUI(latitude: $latitude_number, longitude: $longitude_number, scope: .constant(0.05))
                 .frame(maxHeight: 300)
             
             HStack {

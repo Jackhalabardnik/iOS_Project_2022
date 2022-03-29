@@ -11,13 +11,15 @@ struct EventView: View {
     
     @ObservedObject var event: Event
     
-    @State var search_string = ""
-    @State var force_deactivate = false
+    @State private var search_string = ""
+    @State private var force_deactivate = false
+    @State private var drag_activate_amount = CGSize.zero
+    @State private var drag_highlight_amount = CGSize.zero
     
-    @State var show_edit_popup = false
-    @State var show_new_task_popup = false
-    @State var show_highlight_alert = false
-    @State var show_deactivate_alert = false
+    @State private var show_edit_popup = false
+    @State private var show_new_task_popup = false
+    @State private var show_highlight_alert = false
+    @State private var show_deactivate_alert = false
     
     
     init(event: Event) {
@@ -49,7 +51,7 @@ struct EventView: View {
             .padding([.leading, .trailing], 10)
             
             
-            HStack(spacing: 16) {
+            HStack {
                 Button(action: activate_event, label: {
                     HStack {
                         Text(event.is_active ? "Stop event" : "Start event")
@@ -57,6 +59,20 @@ struct EventView: View {
                         Image(systemName: event.is_active ?  "stop.circle.fill" : "play.circle.fill")
                             .foregroundColor(event.is_active ? .red : .green)
                     }
+                    .offset(self.drag_activate_amount)
+                    .gesture(
+                        DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+                            .onChanged {
+                                if $0.translation.width > 0 && $0.translation.width < 100 {
+                                    self.drag_activate_amount.width = $0.translation.width
+                                }}
+                            .onEnded { value in
+                                if value.translation.width > 0 && value.translation.height > -30 && value.translation.height < 30 {
+                                    withAnimation(.spring()) {
+                                        self.drag_activate_amount = .zero
+                                    }
+                                    self.activate_event()
+                                }})
                     
                 })
                 
@@ -69,15 +85,28 @@ struct EventView: View {
                         Image(systemName: event.is_highlighted ?  "star.fill" : "star")
                             .foregroundColor(.yellow)
                     }
+                    .offset(self.drag_highlight_amount)
+                    .gesture(
+                        DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+                            .onChanged {
+                                if $0.translation.width < 0 && $0.translation.width > -50 {
+                                    self.drag_highlight_amount.width = $0.translation.width
+                                }}
+                            .onEnded { value in
+                                if value.translation.width < 0 && value.translation.height > -30 && value.translation.height < 30 {
+                                    withAnimation(.spring()) {
+                                        self.drag_highlight_amount = .zero
+                                    }
+                                    self.highlight_event()
+                                }})
                 })
                     .disabled(!self.event.is_active)
             }
             .padding([.leading, .trailing], 10)
             .font(.system(size: 20))
             
-            Spacer()
-            
             if self.tasks.isEmpty {
+                Spacer()
                 Text("Add some new tasks!")
             }
             else {
@@ -88,14 +117,12 @@ struct EventView: View {
                     
                     HStack {
                        TextField("", text: $search_string)
-                        .padding(10)
+                        .padding([.leading, .trailing], 10)
                     }
                         .frame(height: 36)
                         .background(Color.gray.opacity(0.3))
                         .cornerRadius(10)
                 }.padding([.leading, .trailing], 10)
-                
-                Spacer()
                 
                 if self.search_string.isBlank == false && (self.tasks.filter{ $0.name!.lowercased().contains(self.search_string.lowercased()) }).isEmpty {
                     Text("There is no tasks containing given string")

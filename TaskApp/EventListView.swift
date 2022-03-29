@@ -19,8 +19,8 @@ struct EventListView: View {
         animation: .default)
     private var events: FetchedResults<Event>
     
-    @State var show_popup = false
-    @State var search_string = ""
+    @State private var show_popup = false
+    @State private var search_string = ""
     
     var body: some View {
         NavigationView {
@@ -144,7 +144,6 @@ struct EventListView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             EventListView()
-            EventListView(show_popup: true)
         }
         
     }

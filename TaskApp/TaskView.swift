@@ -4,15 +4,18 @@ import MapKit
 struct TaskView: View {
     @Environment(\.managedObjectContext) private var core_context
     
-    @FetchRequest var tasks: FetchedResults<Task>
+    @FetchRequest private var tasks: FetchedResults<Task>
     
-    @State var search_string = ""
-    @State var show_edit_event_popup = false
-    @State var show_new_task_popup = false
-    @State var show_description_edit_popup = false
-    @State var show_edit_pin_popup = false
+    @State private var search_string = ""
+    @State private var map_scope = 0.005
+    @State private var drag_amount = CGSize.zero
     
-    @State var choosen_task: Task
+    @State private var show_edit_event_popup = false
+    @State private var show_new_task_popup = false
+    @State private var show_description_edit_popup = false
+    @State private var show_edit_pin_popup = false
+    
+    @State private var choosen_task: Task
     
     init(display_task: Task) {
         self._choosen_task = State(initialValue: display_task)
@@ -40,13 +43,32 @@ struct TaskView: View {
                         .foregroundColor(.blue)
                 })
                 Spacer()
-                Text(choosen_task.is_done ? "Done" : "Not done")
+                
                 Button(action: self.checkbox_task, label: {
-                    Image(systemName: choosen_task.is_done ? "checkmark.square.fill" : "checkmark.square")
-                        .imageScale(.large)
-                        .foregroundColor(choosen_task.is_done ? .green : .black)
+                    HStack {
+                        Text(choosen_task.is_done ? "Done" : "Not done")
+                        Image(systemName: choosen_task.is_done ? "checkmark.square.fill" : "checkmark.square")
+                            .imageScale(.large)
+                            .foregroundColor(choosen_task.is_done ? .green : .black)
+                    }
+                    .offset(drag_amount)
+                    .gesture(
+                        DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
+                            .onChanged {
+                                if $0.translation.width < 0 && $0.translation.width > -100 {
+                                    self.drag_amount.width = $0.translation.width
+                                }}
+                            .onEnded { value in
+                                if value.translation.width < 0 && value.translation.height > -30 && value.translation.height < 30 {
+                                    withAnimation(.spring()) {
+                                        self.drag_amount = .zero
+                                    }
+                                    self.checkbox_task()
+                                }})
                 })
                     .disabled(!self.choosen_task.event!.is_active)
+                
+                
             }
             .padding([.leading, .trailing], 10)
             
@@ -113,8 +135,11 @@ struct TaskView: View {
                         .padding([.leading, .trailing], 10)
                 }.padding([.leading, .trailing], 10)
                 
-                MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude)
+                MapViewUI(latitude: $choosen_task.latitude, longitude: $choosen_task.longitude, scope: $map_scope)
                     .frame(maxHeight: 400)
+                    .onTapGesture {
+                        self.change_scope()
+                }
                 
             }
             else {
@@ -199,6 +224,18 @@ struct TaskView: View {
         catch {
             let nsError = error as NSError
             fatalError("Unresolved error \(nsError),(nsError.userInfo)")
+        }
+    }
+    
+    private func change_scope() {
+        if map_scope < 0.02 {
+            map_scope += 0.01
+        } else if map_scope < 0.1 {
+            map_scope += 0.05
+        } else if map_scope < 0.4 {
+            map_scope += 0.1
+        } else {
+            map_scope = 0.005
         }
     }
 }
