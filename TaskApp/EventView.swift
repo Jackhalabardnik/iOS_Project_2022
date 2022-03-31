@@ -63,7 +63,7 @@ struct EventView: View {
                     .gesture(
                         DragGesture(minimumDistance: 3.0, coordinateSpace: .local)
                             .onChanged {
-                                if $0.translation.width > 0 && $0.translation.width < 100 {
+                                if $0.translation.width > 0 && $0.translation.width < 50 {
                                     self.drag_activate_amount.width = $0.translation.width
                                 }}
                             .onEnded { value in
@@ -104,6 +104,8 @@ struct EventView: View {
             }
             .padding([.leading, .trailing], 10)
             .font(.system(size: 20))
+            
+            Spacer()
             
             if self.tasks.isEmpty {
                 Spacer()
@@ -172,10 +174,10 @@ struct EventView: View {
                 .padding(10)
         }
         .popup(is_presented: $show_edit_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter new event name", error_text: "Event name has to be unique and not empty", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup, input_text: self.event.name!)
+            TextInputPopup(prompt_text: "Enter new event name", error_text: "Event name has to be unique and not empty", ok_callback: self.edit_event_name, is_presented: self.$show_edit_popup, input_text: self.event.name!)
         }
         .popup(is_presented: $show_new_task_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup, input_text: "")
+            TextInputPopup(prompt_text: "Enter task name", error_text: "Task name has to be unique and not empty", ok_callback: self.add_task, is_presented: self.$show_new_task_popup, input_text: "")
         }
         .alert(isPresented: $show_deactivate_alert) {
             Alert(title: Text("Warning"), message: Text("Not all tasks are completed"), primaryButton: .default(Text("OK, deactivate anyway"), action: {

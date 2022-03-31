@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct TextInputPopup<T: NSFetchRequestResult>: View {
+struct TextInputPopup: View {
     
     var prompt_text: String
     var error_text: String

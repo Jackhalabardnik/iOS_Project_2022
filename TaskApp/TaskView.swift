@@ -160,10 +160,10 @@ struct TaskView: View {
             
         }
         .popup(is_presented: $show_edit_event_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter new task name", error_text: "Task name has to be unique and not empty", ok_callback: self.edit_task_name, is_presented: self.$show_edit_event_popup, input_text: self.choosen_task.name!)
+            TextInputPopup(prompt_text: "Enter new task name", error_text: "Task name has to be unique and not empty", ok_callback: self.edit_task_name, is_presented: self.$show_edit_event_popup, input_text: self.choosen_task.name!)
         }
         .popup(is_presented: $show_description_edit_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter description", error_text: "", ok_callback: self.edit_task_description, is_presented: self.$show_description_edit_popup, input_text: self.choosen_task.task_description!)
+            TextInputPopup(prompt_text: "Enter description", error_text: "", ok_callback: self.edit_task_description, is_presented: self.$show_description_edit_popup, input_text: self.choosen_task.task_description!)
         }
         .popup(is_presented: $show_edit_pin_popup) {
             PinChoosePopup(is_presented: self.$show_edit_pin_popup, task: self.$choosen_task)

@@ -99,7 +99,7 @@ struct EventListView: View {
             }
         }
         .popup(is_presented: $show_popup) {
-            TextInputPopup<Event>(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup, input_text: "")
+            TextInputPopup(prompt_text: "Enter event name", error_text: "Event name has to be unique and not empty", ok_callback: self.add_event, is_presented: self.$show_popup, input_text: "")
                 .navigationViewStyle(StackNavigationViewStyle())
         }
         
